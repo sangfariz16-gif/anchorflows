@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnchorFlow — Visual Smart Contract Builder for Solana</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --white: #f0ede6;
+    --green: #00ff87;
+    --green-dim: #00cc6a;
+    --orange: #ff6b2b;
+    --gray: #1a1a1a;
+    --gray2: #252525;
+    --muted: #888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* GRID NOISE BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,135,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,135,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 56px 0 0;
+    border-bottom: 1px solid #1e1e1e;
+    padding-bottom: 48px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green);
+    border: 1px solid var(--green);
+    padding: 4px 10px;
+    margin-bottom: 24px;
+    animation: fadeIn 0.6s ease both;
+  }
+
+  h1 {
+    font-size: clamp(52px, 8vw, 88px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    animation: slideUp 0.7s ease both 0.1s;
+  }
+
+  h1 span {
+    color: var(--green);
+    display: block;
+  }
+
+  .tagline {
+    margin-top: 24px;
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 480px;
+    line-height: 1.6;
+    animation: slideUp 0.7s ease both 0.2s;
+  }
+
+  .tagline strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  .ticker-row {
+    margin-top: 32px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    animation: slideUp 0.7s ease both 0.3s;
+  }
+
+  .chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid #333;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .chip.highlight {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  /* SECTION */
+  section {
+    padding: 56px 0;
+    border-bottom: 1px solid #1a1a1a;
+    animation: fadeIn 0.8s ease both 0.4s;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #aaa;
+    line-height: 1.75;
+    font-size: 15px;
+    font-weight: 400;
+    max-width: 620px;
+  }
+
+  /* PROBLEM / SOLUTION split */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 32px;
+  }
+
+  .col-block {
+    background: var(--gray);
+    padding: 28px;
+  }
+
+  .col-block.right {
+    background: #0f1f14;
+    border: 1px solid #1a3825;
+  }
+
+  .col-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .col-label.red { color: #ff4444; }
+  .col-label.green { color: var(--green); }
+
+  .col-block ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .col-block ul li {
+    font-size: 14px;
+    color: #bbb;
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .col-block ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #555;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .col-block.right ul li::before {
+    content: '✓';
+    color: var(--green);
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 32px;
+  }
+
+  .feature-card {
+    background: var(--gray);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+
+  .feature-card:hover { background: #202020; }
+
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--green);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .feature-card:hover::after { transform: scaleX(1); }
+
+  .feature-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #444;
+    margin-bottom: 16px;
+  }
+
+  .feature-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    color: #777;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+
+  /* ROADMAP */
+  .roadmap {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .roadmap-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 24px;
+    background: var(--gray);
+    padding: 20px 24px;
+    align-items: start;
+  }
+
+  .phase {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--green);
+    padding-top: 3px;
+  }
+
+  .roadmap-content h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .roadmap-content p {
+    font-size: 13px;
+    color: #777;
+    max-width: 100%;
+  }
+
+  /* TRACTION */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 32px;
+  }
+
+  .stat-box {
+    background: var(--gray);
+    padding: 28px 24px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--green);
+    line-height: 1;
+    display: block;
+  }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* TEAM */
+  .team-block {
+    margin-top: 32px;
+    background: var(--gray);
+    padding: 32px;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .team-member {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .member-name {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .member-role {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+  }
+
+  .member-bg {
+    font-size: 13px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: 64px 0;
+    text-align: center;
+    border-bottom: none;
+  }
+
+  .cta-section h2 {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  .cta-section p {
+    margin: 0 auto 32px;
+    text-align: center;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    padding: 14px 28px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: #000;
+    font-weight: 700;
+  }
+
+  .btn-primary:hover {
+    background: var(--green-dim);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid #444;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--white);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #1a1a1a;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-brand {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .footer-brand span { color: var(--green); }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--green); }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .two-col, .features-grid, .stats-row { grid-template-columns: 1fr; }
+    .roadmap-item { grid-template-columns: 1fr; gap: 4px; }
+    h1 { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge">EasyA Kickstart · Solana · 2025</div>
+    <h1>Anchor<span>Flow</span></h1>
+    <p class="tagline">
+      <strong>Visual smart contract builder for Solana developers.</strong><br>
+      Deploy Anchor programs in minutes, not days.
+    </p>
+    <div class="ticker-row">
+      <div class="chip highlight">$AFLW</div>
+      <div class="chip">Solana</div>
+      <div class="chip">DeFi Infra</div>
+      <div class="chip">Developer Tools</div>
+      <div class="chip">Fair Launch</div>
+    </div>
+  </header>
+
+  <!-- PROBLEM / SOLUTION -->
+  <section>
+    <div class="section-label">01 — The Problem</div>
+    <h2>Building on Solana is painful.</h2>
+    <p>Anchor is powerful, but the learning curve is brutal. Most devs spend more time fighting boilerplate than actually building their protocol.</p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label red">Without AnchorFlow</div>
+        <ul>
+          <li>200+ lines of boilerplate per program</li>
+          <li>Hours debugging IDL serialization errors</li>
+          <li>No visual feedback during development</li>
+          <li>Steep learning curve kills momentum</li>
+          <li>Repeated patterns copy-pasted across projects</li>
+        </ul>
+      </div>
+      <div class="col-block right">
+        <div class="col-label green">With AnchorFlow</div>
+        <ul>
+          <li>Drag-and-drop program architecture</li>
+          <li>Auto-generated Anchor boilerplate</li>
+          <li>Real-time visual program graph</li>
+          <li>Deploy to devnet in 3 clicks</li>
+          <li>Reusable module library out of the box</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section>
+    <div class="section-label">02 — The Product</div>
+    <h2>What we're building.</h2>
+    <p>AnchorFlow is a visual IDE for Solana smart contracts. Think Figma meets Anchor Framework — drag nodes, define logic, ship programs.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-num">F-01</div>
+        <div class="feature-title">Visual Program Graph</div>
+        <p class="feature-desc">Design your contract architecture visually. Nodes represent accounts, instructions, and constraints.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">F-02</div>
+        <div class="feature-title">Code Generator</div>
+        <p class="feature-desc">AnchorFlow writes the Rust + IDL for you. Export clean, production-ready Anchor code instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">F-03</div>
+        <div class="feature-title">One-Click Deploy</div>
+        <p class="feature-desc">Connect wallet, choose network (devnet / mainnet), deploy. No CLI setup required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">F-04</div>
+        <div class="feature-title">Module Library</div>
+        <p class="feature-desc">Reusable modules for token vaults, staking, escrow, DAO governance — plug and customize.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">F-05</div>
+        <div class="feature-title">Live Simulation</div>
+        <p class="feature-desc">Test instruction flows on a local validator before touching real SOL. Catch errors visually.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">F-06</div>
+        <div class="feature-title">Team Collab</div>
+        <p class="feature-desc">Share your program graph with teammates. Review architecture together like a design file.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section>
+    <div class="section-label">03 — Roadmap</div>
+    <h2>Where we're going.</h2>
+
+    <div class="roadmap">
+      <div class="roadmap-item">
+        <div class="phase">Phase 01<br>Now</div>
+        <div class="roadmap-content">
+          <h4>Visual Program Builder (MVP)</h4>
+          <p>Core drag-and-drop interface, Anchor code export, devnet deploy. Live prototype ready.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase">Phase 02<br>Q3 2025</div>
+        <div class="roadmap-content">
+          <h4>Module Library + Live Simulation</h4>
+          <p>20+ reusable modules (vaults, staking, escrow). Local validator integration for testing.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase">Phase 03<br>Q4 2025</div>
+        <div class="roadmap-content">
+          <h4>Team Collaboration + Audit Tools</h4>
+          <p>Multi-user editing, version history, automated security checks before mainnet deploy.</p>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase">Phase 04<br>2026</div>
+        <div class="roadmap-content">
+          <h4>Marketplace + Token Integration</h4>
+          <p>$AFLW powers premium modules, audit credits, and team plan access. Community-built module marketplace.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACTION -->
+  <section>
+    <div class="section-label">04 — Why Now</div>
+    <h2>The market is ready.</h2>
+    <p>Solana is winning the developer war. The ecosystem needs better tooling — not another DeFi fork.</p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-num">20K+</span>
+        <span class="stat-label">Active Solana Devs</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">$0</span>
+        <span class="stat-label">Visual Anchor Tools Today</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num">3 min</span>
+        <span class="stat-label">From idea to deployed program</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section>
+    <div class="section-label">05 — Team</div>
+    <h2>Built by builders.</h2>
+    <p>We've shipped Anchor programs, felt the pain firsthand, and decided to fix it.</p>
+
+    <div class="team-block">
+      <div class="team-member">
+        <div class="member-name">You / Founder</div>
+        <div class="member-role">Builder & Visionary</div>
+        <div class="member-bg">EasyA Hackathon Alum · Solana Dev</div>
+      </div>
+      <div class="team-member">
+        <div class="member-name">Co-Founder</div>
+        <div class="member-role">Protocol Engineer</div>
+        <div class="member-bg">Ex-DeFi Protocol · Anchor Contributor</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Back the future of Solana dev tools.</h2>
+    <p>AnchorFlow is live on EasyA Kickstart. Fair launch, no presale, community-driven.</p>
+    <div class="cta-buttons">
+      <a href="https://kickstart.easya.io" class="btn btn-primary" target="_blank">Buy $AFLW on Kickstart</a>
+      <a href="https://kickstart.easya.io/guide" class="btn btn-secondary" target="_blank">Read Founder Guide</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-brand">Anchor<span>Flow</span> · $AFLW</div>
+    <div class="footer-links">
+      <a href="#">X / Twitter</a>
+      <a href="#">Telegram</a>
+      <a href="#">GitHub</a>
+      <a href="https://kickstart.easya.io/terms" target="_blank">Terms</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
